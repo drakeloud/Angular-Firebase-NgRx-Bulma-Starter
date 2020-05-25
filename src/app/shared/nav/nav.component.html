@@ -1,0 +1,54 @@
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://bulma.io">
+        <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
+      </a>
+  
+      <a 
+        role="button" 
+        class="navbar-burger burger" 
+        [ngClass]="{'is-active': isActive}" 
+        aria-label="menu" 
+        aria-expanded="false" 
+        data-target="navbarBasicExample"
+        (click)="toggleNav()"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+  
+    <div id="navbarBasicExample" class="navbar-menu" [ngClass]="{'is-active': isActive}">
+      <div class="navbar-start">
+        <a routerLink="/" class="navbar-item">
+          Home Link
+        </a>
+  
+        <a routerLink="/profile" class="navbar-item">
+          Profile Link
+        </a>
+      </div>
+  
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+              <ng-container *ngIf="loggedIn()">
+                <p>Hello, {{ username }}</p>
+                <a routerLink="" (click)="logout()" class="button is-light">
+                    Log out
+                </a>
+              </ng-container>
+              <ng-container *ngIf="!loggedIn()">
+                <a routerLink="/sign-up" class="button is-primary">
+                    <strong>Sign up</strong>
+                  </a>
+                  <a routerLink="/login" class="button is-light">
+                    Log in
+                  </a>
+              </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>

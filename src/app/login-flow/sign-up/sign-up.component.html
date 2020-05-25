@@ -1,0 +1,106 @@
+<section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="column is-4 is-offset-4">
+                <div class="box">
+                    <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()" novalidate>
+                        <span>First Name</span>
+                        <div class="field">
+                            <div class="control">
+                                <input type="" class="input is-large" formControlName="firstName" placeholder="Enter First Name">    
+                            </div>
+                        </div>
+
+                        <span>Last Name</span>
+                        <div class="field">
+                            <div class="control">
+                                <input type="" class="input is-large" formControlName="lastName" placeholder="Enter Last Name">    
+                            </div>
+                        </div>
+
+                        <span>Email address</span>
+                        <div class="field">
+                            <div class="control">
+                                <input type="email" class="input is-large" formControlName="email" placeholder="Enter Email">    
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="form-text text-muted" 
+                                *ngIf="signUpForm.controls.email.touched && signUpForm.controls.email.errors?.required">
+                                Please enter email address.!
+                            </div>
+                        
+                            <div class="form-text text-muted"
+                                *ngIf="signUpForm.controls.email.touched && signUpForm.controls.email.errors?.email">
+                                Email address not well formed.!
+                            </div>
+                        </div>
+
+                        <span>Password</span>
+                        <div class="field">
+                            <div class="control">
+                                <input type="password" class="input is-large" formControlName="password" placeholder="Password">
+                            </div>
+                        </div>
+                        <span>Confirm Password</span>
+                        <div class="field">
+                            <div class="control">
+                                <input type="password" class="input is-large" formControlName="confirmPassword" placeholder="Confirm Password">
+                            </div>
+                        </div>
+                        <div class="form-text text-muted" 
+                            *ngIf="signUpForm.controls.confirmPassword.touched && signUpForm.errors?.confirmedValidator">
+                            Password and confirm password must match.
+                        </div>
+                        <button class="button is-block is-info is-large is-fullwidth" [disabled]="!signUpForm.valid">Sign Up <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                    </form>
+                </div>
+                <p class="has-text-grey">
+                    <a outerLink="/login">Login</a> &nbsp;·&nbsp;
+                    <a href="../">Forgot Password</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- <section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="column is-4 is-offset-4">
+                <div class="box">
+                    <form>
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-large" type="username" placeholder="Your Username" autofocus="">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-large" type="email" placeholder="Your Email" autofocus="">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-large" type="password" placeholder="Your Password">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="checkbox">
+              <input type="checkbox">
+              Remember me
+            </label>
+                        </div>
+                        <button class="button is-block is-info is-large is-fullwidth">Sign Up <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                    </form>
+                </div>
+                <p class="has-text-grey">
+                    <a outerLink="/login">Login</a> &nbsp;·&nbsp;
+                    <a href="../">Forgot Password</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section> -->

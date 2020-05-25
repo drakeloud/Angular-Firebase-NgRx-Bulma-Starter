@@ -1,0 +1,50 @@
+<section class="hero is-info is-medium is-bold">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <h1 class="title">
+            Hello {{ userProfile.displayName }}
+            </h1>
+        </div>
+    </div>
+</section>
+<section class="container">
+    <div class="sandbox profile-spacing">
+        <div class="tile is-ancestor">
+            <div class="tile is-parent is-shady">
+                <article class="tile is-child notification is-white">
+                    <p class="title">Profile Details</p>
+
+                    <figure class="image is-128x128" *ngIf="profileImageUrl">
+                        <img class="is-rounded" [src]="profileImageUrl">
+                    </figure>
+                    <div class="file" *ngIf="!profileImageUrl">
+                        <label class="file-label">
+                        <input class="file-input" (change)="upload($event)" accept=".png,.jpg" type="file" name="resume">
+                        <span class="file-cta">
+                            <span class="file-icon">
+                            <i class="fa fa-upload"></i>
+                            </span>
+                            <span class="file-label">
+                            Choose a file…
+                            </span>
+                        </span>
+                        </label>
+                    </div>
+                    <progress *ngIf="!profileImageUrl" max="100" [value]="(uploadProgress | async)"></progress>
+                </article>
+            </div>
+            <div class="tile is-parent is-8 is-shady">
+                <article class="tile is-child notification is-white">
+                    <div class="content">
+                        <div><b>First Name:</b> {{ userProfile.firstName }}</div>
+                        <div><b>Last Name:</b> {{ userProfile.lastName }}</div>
+                        <div><b>Email:</b> {{ userProfile.email }}</div>
+                        <div><b>Company Id:</b> {{ userProfile.companyId }}</div>
+                        <div><b>Email Verified:</b> {{ userProfile.emailVerified }}</div>
+                        <div><b>Photo Url:</b>{{ userProfile.photoUrl }}</div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>

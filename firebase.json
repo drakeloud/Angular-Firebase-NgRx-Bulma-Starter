@@ -1,0 +1,19 @@
+{
+  "hosting": [
+    {
+      "target": "angularFirebaseNgRxBulmaStarter",
+      "public": "dist/angularFirebaseNgRxBulmaStarter",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ]
+}
