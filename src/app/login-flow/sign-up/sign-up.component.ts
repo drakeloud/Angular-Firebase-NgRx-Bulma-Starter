@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/auth.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { SignUpUser } from 'src/app/models/user';
 import { ConfirmedValidator } from 'src/app/shared/utilities/validation/confirmed.validator';
+import { Store } from '@ngrx/store';
+import { State as AuthState } from '../../store/auth/auth.state';
+import * as authActions from '../../store/auth/actions';
 
 @Component({
     selector: 'app-sign-up',
@@ -12,7 +14,7 @@ import { ConfirmedValidator } from 'src/app/shared/utilities/validation/confirme
 export class SignUpComponent implements OnInit {
     public signUpForm: FormGroup;
 
-    constructor(private readonly authService: AuthService) {
+    constructor(private readonly authStore: Store<AuthState>) {
         this.signUpForm = new FormGroup({
             firstName: new FormControl('', [Validators.required]),
             lastName: new FormControl('', [Validators.required]),
@@ -27,11 +29,7 @@ export class SignUpComponent implements OnInit {
     ngOnInit() {}
 
     private signUp(signUpUser: SignUpUser) {
-        this.authService.signup(signUpUser)
-        .then()
-        .catch((err) => {
-            console.log(err);
-        });
+        this.authStore.dispatch(new authActions.Signup(signUpUser));
     }
 
     public onSubmit() {

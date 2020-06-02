@@ -1,43 +1,42 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User } from '../models/user';
-import { AngularFireStorage } from '@angular/fire/storage';
-import { v4 as uuidv4 } from 'uuid';
-import { Observable } from 'rxjs';
-
+import { Observable, Subscription } from 'rxjs';
+import { Store, select } from '@ngrx/store';
+import * as authActions from '../store/auth/actions';
+import * as fromAuth from '../store/auth';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
     public successMessage: string = null;
     public userProfile: User = null;
-
     public downloadURL: Observable<string> = null;
     public profileImageUrl: string = null;
     public uploadProgress: Observable<number> = null;
+    private authSubscription: Subscription = null;
 
     constructor(
-        private readonly authService: AuthService,
-        private readonly fireStorage: AngularFireStorage
+        private store: Store<fromAuth.State>
         ) {}
 
     ngOnInit() {
-        this.userProfile = this.authService.user;
-        if (this.userProfile.photoUrl && this.userProfile.photoUrl !== '') {
-            this.profileImageUrl = this.userProfile.photoUrl;
-        }
+        this.authSubscription = this.store.pipe(
+            select(fromAuth.selectUser),
+            map(userProfile => {
+                this.userProfile = userProfile;
+            })
+        ).subscribe();
     }
 
-    upload(event) {
-        const ref = this.fireStorage.ref(`users/${this.userProfile.userId}}`);
-        const task = ref.put(event.target.files[0]).then((snapshot) => {
-            ref.getDownloadURL().subscribe((url) => {
-                this.profileImageUrl = url;
-                this.authService.addProfileImage(url);
-            });
-        });
+    upload(event, userId: string): void {
+        this.store.dispatch(new authActions.AddProfileImage(event.target.files[0], userId));
+    }
+
+    ngOnDestroy(): void {
+        this.authSubscription.unsubscribe();
     }
 }

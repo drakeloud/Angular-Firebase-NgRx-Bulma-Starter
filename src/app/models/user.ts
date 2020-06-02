@@ -13,13 +13,11 @@ export class User {
     companyId: string;
     emailVerified: boolean;
     photoUrl: string;
-    // permissions: string[];
-    // assignments: string[];
 
     get displayName(): string {
         return `${this.firstName} ${this.lastName}`;
     }
-    
+
     public static fromJson(jsonUser: any): User {
         if (!jsonUser) {
             return new User();

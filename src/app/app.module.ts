@@ -1,4 +1,3 @@
-import { AuthGuard } from './services/auth.guard';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
@@ -20,7 +19,11 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireStorageModule } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { StoreModule } from '@ngrx/store';
+import { AngularFireAuthGuardModule } from '@angular/fire/auth-guard';
+
+// NgRx
+import { StoreModule } from './store/store.module';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 @NgModule({
 declarations: [
@@ -41,11 +44,12 @@ imports: [
     AngularFireAuthModule,
     AngularFireDatabaseModule,
     AngularFireStorageModule,
-    StoreModule.forRoot({}, {})
+    AngularFireAuthGuardModule,
+    StoreModule,
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production })
 ],
 providers: [
     AuthService,
-    AuthGuard,
     AngularFirestore
 ],
 bootstrap: [AppComponent]
