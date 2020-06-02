@@ -5,6 +5,7 @@
 # Why I chose each, etc...
 # Running all of the stuff, getting started with Firebase, etc
 # Details of project
+# Use redux dev tools: http://extension.remotedev.io/
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.19.
 

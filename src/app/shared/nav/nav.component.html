@@ -33,13 +33,13 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-              <ng-container *ngIf="loggedIn()">
-                <p>Hello, {{ username }}</p>
+              <ng-container *ngIf="isLoggedIn">
+                <div class="user-firstname" *ngIf="user?.firstName">Hello, {{ user.firstName }}</div>
                 <a routerLink="" (click)="logout()" class="button is-light">
                     Log out
                 </a>
               </ng-container>
-              <ng-container *ngIf="!loggedIn()">
+              <ng-container *ngIf="!isLoggedIn">
                 <a routerLink="/sign-up" class="button is-primary">
                     <strong>Sign up</strong>
                   </a>

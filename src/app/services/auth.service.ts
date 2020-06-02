@@ -1,123 +1,76 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase/app';
-import { Observable } from 'rxjs';
-import { SignUpUser, User } from '../models/user';
-import { Router } from '@angular/router';
+import { Observable, from } from 'rxjs';
+import { SignUpUser } from '../models/user';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { v4 as uuidv4 } from 'uuid';
+import { Store } from '@ngrx/store';
+import * as authActions from '../store/auth/actions';
+import * as fromAuth from '../store/auth';
+import { AngularFireStorage } from '@angular/fire/storage';
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-    private firebaseUser$: Observable<firebase.User>;
-    private fbUser: firebase.User = null; // obsolete
-    public user: User = null;
-
-    constructor(
-        private firebaseAuth: AngularFireAuth,
-        private router: Router,
-        private db: AngularFirestore) {
-        this.firebaseUser$ = firebaseAuth.authState;
-
-        this.firebaseUser$.subscribe((firebaseUser) => {
-            if (firebaseUser) {
-                // CRUD operations: https://dottedsquirrel.com/angular/how-to-crud-in-angular-firebase-firestore/
-                // https://www.techiediaries.com/angular-firebase/angular-9-8-firestore-database-crud-tutorial/
-
-                this.associateUserToFirebaseAuth(firebaseUser).then(() => {
-                    // console.log(this.user);
-                });
-            } else {
-                this.user = null;
+    constructor(private readonly firebaseAuth: AngularFireAuth,
+                private store: Store<fromAuth.State>,
+                private readonly db: AngularFirestore,
+                private readonly fireStorage: AngularFireStorage
+                ) {
+        this.firebaseAuth.authState.subscribe((firebaseUser) => {
+            if (firebaseUser && firebaseUser.uid) {
+                this.store.dispatch(new authActions.LoginSuccess(firebaseUser.uid));
             }
         });
-
     }
 
-    // TODO: SECURE DATABASE
-    // TODO: Secure user data with proper constraints
-        // - https://firebase.google.com/docs/firestore/security/rules-query
-    // TODO: add email verification !!!
-    public signup(signUpUser: SignUpUser): Promise<void> {
-        return this.firebaseAuth
+    public signup(signUpUser: SignUpUser): Observable<firebase.auth.UserCredential> {
+        return from(this.firebaseAuth.auth.createUserWithEmailAndPassword(signUpUser.email, signUpUser.password));
+    }
+
+    public login(email: string, password: string): Observable<firebase.auth.UserCredential> {
+        return from(this.firebaseAuth
             .auth
-            .createUserWithEmailAndPassword(signUpUser.email, signUpUser.password)
-            .then(userCredential => {
-                this.db.collection('users').doc(userCredential.user.uid).set({
-                    firstName: signUpUser.firstName,
-                    lastName: signUpUser.lastName,
-                    email: signUpUser.email,
-                    userId: userCredential.user.uid
-                }).then((res) => {
-                    this.associateUserToFirebaseAuth(userCredential.user).then(() => {
-                        this.router.navigate(['profile']);
+            .signInWithEmailAndPassword(email, password));
+    }
+
+    public saveUserDataToSignupUser(signUpUser: SignUpUser, userid: string): Observable<void> {
+        return from(this.db.collection('users').doc(userid).set({
+            firstName: signUpUser.firstName,
+            lastName: signUpUser.lastName,
+            email: signUpUser.email,
+            userId: userid
+        }));
+    }
+
+    public loadUser(userUid: string): Observable<firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>> {
+        return this.db.collection('users', ref => ref.where('userId', '==', userUid)).get();
+    }
+
+    public logout(): Observable<void> {
+        return from(this.firebaseAuth
+            .auth
+            .signOut());
+    }
+
+    public addProfileImage(userId: string, image: any): Observable<string> {
+        const ref = this.fireStorage.ref(`users/${userId}}`);
+
+        return new Observable(obs => {
+            try {
+                ref.put(image).then((snapshot) => {
+                    ref.getDownloadURL().subscribe((url) => {
+                        this.db.collection('users', reference => reference.where('userId', '==', userId)).doc(userId).update({
+                            photoUrl: url
+                        });
+                        obs.next(url);
                     });
-                }).catch((err) => {
-                    console.log(err);
                 });
-            })
-            .catch(err => {
-                console.log('Something went wrong:', err.message);
-            });
-    }
-
-    public login(email: string, password: string): Promise<void> {
-        return this.firebaseAuth
-            .auth
-            .signInWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                this.associateUserToFirebaseAuth(userCredential.user).then(() => {
-                    this.router.navigate(['profile']);
-                });
-            })
-            .catch(err => {
-                console.log('Something went wrong:', err.message);
-            });
-    }
-
-    public logout() {
-        this.firebaseAuth
-            .auth
-            .signOut()
-            .then(() => {
-                this.router.navigate(['']);
-            });
-    }
-
-    public isLoggedIn(): boolean {
-        if (this.user == null) { // may be able to optimize this by checking firebase Auth NOT user collection auth
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public addProfileImage(url: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.db.collection('users', ref => ref.where('userId', '==', this.fbUser.uid)).doc(this.fbUser.uid).update({
-                photoUrl: url
-            }).then((res) => {
-                console.log(res);
-                resolve(res);
-            }).catch((err) => {
-                reject(err);
-            })
-        });
-    }
-
-    private associateUserToFirebaseAuth(firebaseUser: firebase.User): Promise<void> {
-        this.fbUser = firebaseUser;
-        return new Promise((resolve, reject) =>  {
-            this.db.collection('users', ref => ref.where('userId', '==', firebaseUser.uid)).get().subscribe((documentData) => {
-                if (documentData.size !== 1) {
-                    // TODO: Better error handling - maybe Toastr?
-                    reject('Unable to login because user not found or too many users returned!');
-                }
-                this.user = User.fromJson(documentData.docs[0].data());
-                resolve();
-            });
+            } catch (err) {
+                obs.error(err);
+            }
         });
     }
 }
